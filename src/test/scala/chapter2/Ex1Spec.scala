@@ -1,4 +1,4 @@
-package ch2dot4
+package chapter2
 
 import org.scalatest.{Matchers, WordSpec}
 

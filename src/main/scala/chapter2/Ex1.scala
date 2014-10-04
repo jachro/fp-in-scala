@@ -1,4 +1,4 @@
-package ch2dot4
+package chapter2
 
 object Fibonacci {
 
