@@ -7,7 +7,7 @@ class GenericsSpec extends WordSpec with Matchers {
 
   "Generics" should {
     "have methodEnsuringTwoArgTypes working" in {
-      Generics.methodEnsuringTwoArgTypes(new Sub1Class(), new Sub1Sub1Class())
+      Generics.methodEnsuringTwoArgTypes[Sub1Class](new Sub1Class(), new Sub1Sub1Class())
     }
   }
 
