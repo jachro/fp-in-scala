@@ -1,6 +1,9 @@
 package various
 
+import java.lang.instrument.Instrumentation
+
 import org.scalatest.{Matchers, WordSpec}
+import sun.instrument.InstrumentationImpl
 import various.Generics.{Sub1Sub1Class, Sub1Class, SuperClass}
 
 class GenericsSpec extends WordSpec with Matchers {
@@ -11,4 +14,10 @@ class GenericsSpec extends WordSpec with Matchers {
     }
   }
 
+
+  "" should {
+    "" in {
+      new InstrumentationImpl().getAllLoadedClasses.foreach(println(_))
+    }
+  }
 }
