@@ -60,7 +60,7 @@ object List {
     }
 
   def sum2(ns: List[Int]) =
-    foldRight(ns, 0)((x,y) => x + y)
+    foldRight(ns, 0)(_ + _)
 
   def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => {
     println(s"tail value: $a")
@@ -70,4 +70,6 @@ object List {
     }
   )
 
+  def length[A](l: List[A]): Int =
+    foldRight(l, 0)((a,b) => b + 1)
 }
