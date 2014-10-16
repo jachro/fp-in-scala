@@ -54,19 +54,20 @@ object List {
     case Nil => Nil
   }
 
-  def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = {
-    println(as)
-    as match {
+  def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = as match {
       case Nil => z
       case Cons(x, xs) => f(x, foldRight(xs, z)(f))
     }
-  }
 
   def sum2(ns: List[Int]) =
     foldRight(ns, 0)((x,y) => x + y)
 
-  def product2(ns: List[Double]) = foldRight(ns, 1.0)((a, b) => b match {
-    case b => println(s"$a $b");a * b
-  })
+  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => {
+    println(s"tail value: $a")
+    a match {
+      case 0 => return 0.0
+      case x => a * b}
+    }
+  )
 
 }
