@@ -1,5 +1,7 @@
 package chapter3
 
+import scala.annotation.tailrec
+
 sealed trait List[+A] {
   def tail: List[A]
 }
@@ -72,4 +74,11 @@ object List {
 
   def length[A](l: List[A]): Int =
     foldRight(l, 0)((a,b) => b + 1)
+
+  @tailrec
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+    case Nil => z
+    case Cons(h, xs) => foldLeft(xs, f(z, h))(f)
+  }
+
 }
