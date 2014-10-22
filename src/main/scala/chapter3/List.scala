@@ -81,4 +81,12 @@ object List {
     case Cons(h, xs) => foldLeft(xs, f(z, h))(f)
   }
 
+  def lengthOnFoldLeft(list: List[Int]) =
+    foldLeft(list, 0)((tot, x) => tot + 1)
+
+  def sumOnFoldLeft(list: List[Int]) =
+    foldLeft(list, 0)((sum, x) => sum + x)
+
+  def productOnFoldLeft(list: List[Int]) =
+    foldLeft(list, 1)((prod, x) => prod * x)
 }
