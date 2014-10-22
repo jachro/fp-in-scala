@@ -89,4 +89,7 @@ object List {
 
   def productOnFoldLeft(list: List[Int]) =
     foldLeft(list, 1)((prod, x) => prod * x)
+
+  def reverse[A](l: List[A]): List[A] =
+    foldLeft[A, List[A]](l, Nil)((rev, x) => Cons[A](x, rev))
 }
