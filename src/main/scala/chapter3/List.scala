@@ -56,27 +56,25 @@ object List {
     case Nil => Nil
   }
 
-  def foldRight[A,B](as: List[A], z: B)(f: (A, B) => B): B = as match {
-      case Nil => z
-      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
-    }
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
+    case Nil => z
+    case Cons(x, xs) => f(x, foldRight(xs, z)(f))
+  }
 
   def sum2(ns: List[Int]) =
     foldRight(ns, 0)(_ + _)
 
-  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => {
-    println(s"tail value: $a")
-    a match {
+  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => a match {
       case 0 => return 0.0
-      case x => a * b}
+      case x => a * b
     }
   )
 
   def length[A](l: List[A]): Int =
-    foldRight(l, 0)((a,b) => b + 1)
+    foldRight(l, 0)((a, b) => b + 1)
 
   @tailrec
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = l match {
+  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = l match {
     case Nil => z
     case Cons(h, xs) => foldLeft(xs, f(z, h))(f)
   }
@@ -92,4 +90,14 @@ object List {
 
   def reverse[A](l: List[A]): List[A] =
     foldLeft[A, List[A]](l, Nil)((rev, x) => Cons[A](x, rev))
+
+  def foldRightOnFoldLeft[A, B](l: List[A], z: B)(f: (A, B) => B): B = {
+    val rev = foldLeft[A, List[A]](l, Nil)((r, h) => Cons(h, r))
+    foldLeft[A, B](rev, z)((b: B, a: A) => f(a, b))
+  }
+
+  def foldLeftOnFoldRight[A, B](l: List[A], z: B)(f: (B, A) => B): B = {
+    val rev = foldRight[A, List[A]](l, Nil)((h, r) => Cons(h, r))
+    foldRight[A, B](rev, z)((a: A, b: B) => f(b, a))
+  }
 }
