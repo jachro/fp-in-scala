@@ -104,4 +104,5 @@ object List {
   def append[A](list: List[A], item: A) =
     foldRight(list, List(item))((currentItem, newList) => Cons(currentItem, newList))
 
+  def concatenate[A](list: List[List[A]]): List[A] = ???
 }
