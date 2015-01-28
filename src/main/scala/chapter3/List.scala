@@ -100,4 +100,8 @@ object List {
     val rev = foldRight[A, List[A]](l, Nil)((h, r) => Cons(h, r))
     foldRight[A, B](rev, z)((a: A, b: B) => f(b, a))
   }
+
+  def append[A](list: List[A], item: A) =
+    foldRight(list, List(item))((currentItem, newList) => Cons(currentItem, newList))
+
 }
