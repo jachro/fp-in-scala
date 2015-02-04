@@ -65,9 +65,9 @@ object List {
     foldRight(ns, 0)(_ + _)
 
   def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => a match {
-      case 0 => return 0.0
-      case x => a * b
-    }
+    case 0 => return 0.0
+    case x => a * b
+  }
   )
 
   def length[A](l: List[A]): Int =
@@ -104,5 +104,18 @@ object List {
   def append[A](list: List[A], item: A) =
     foldRight(list, List(item))((currentItem, newList) => Cons(currentItem, newList))
 
-  def concatenate[A](list: List[List[A]]): List[A] = ???
+  def concatenate[A](list: List[List[A]]): List[A] = {
+    def appendLists[A](list1: List[A], list2: List[A]) =
+      foldLeft[A, List[A]](list2, list1)((newList1, list2Item) => Cons(list2Item, newList1))
+
+    val flat = foldLeft[List[A], List[A]](list, Nil) { (concatenated, item) =>
+      item match {
+        case Nil => concatenated
+        case Cons(head, Nil) => Cons(head, concatenated)
+        case Cons(head, tail) => appendLists(Cons(head, concatenated), tail)
+      }
+    }
+
+    reverse(flat)
+  }
 }
