@@ -105,7 +105,7 @@ object List {
     foldRight(list, List(item))((currentItem, newList) => Cons(currentItem, newList))
 
   def concatenate[A](list: List[List[A]]): List[A] = {
-    def appendLists[A](list1: List[A], list2: List[A]) =
+    def appendLists(list1: List[A], list2: List[A]) =
       foldLeft[A, List[A]](list2, list1)((newList1, list2Item) => Cons(list2Item, newList1))
 
     val flat = foldLeft[List[A], List[A]](list, Nil) { (concatenated, item) =>
