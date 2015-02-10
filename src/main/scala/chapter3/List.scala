@@ -118,4 +118,22 @@ object List {
 
     reverse(flat)
   }
+
+  def increment(list: List[Int]): List[Int] = {
+    def unstash(stashed: List[Int], newList: List[Int]): List[Int] = stashed match {
+      case Nil => newList
+      case Cons(head, Nil) => Cons(head, newList)
+      case Cons(head, tail) => unstash(tail, Cons(head, newList))
+    }
+
+    def appendAsLast(list: List[Int], item: Int, stashed: List[Int] = Nil): List[Int] = list match {
+      case Nil => Cons(item, Nil)
+      case Cons(head, Nil) => unstash(Cons(head, stashed), Cons(item, Nil))
+      case Cons(head, tail) => appendAsLast(tail, item, Cons(head, stashed))
+    }
+
+    foldLeft[Int, List[Int]](list, Nil) { (incremented, item) =>
+      appendAsLast(incremented, item + 1)
+    }
+  }
 }
