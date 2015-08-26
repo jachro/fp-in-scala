@@ -10,7 +10,23 @@ case object Nil extends List[Nothing] {
   override def tail: List[Nothing] = Nil
 }
 
-case class Cons[+A](head: A, tail: List[A]) extends List[A]
+case class Cons[+A](head: A, tail: List[A]) extends List[A] {
+
+  override def toString: String = {
+    def headToString(converted: String, toConvert: List[A]): String =
+      toConvert match {
+        case Nil =>
+          converted
+        case Cons(h, t) =>
+          if (converted.isEmpty)
+            headToString(h.toString, t)
+          else
+            headToString(converted + ", " + h, t)
+      }
+
+    headToString("", this)
+  }
+}
 
 object List {
 
@@ -136,4 +152,15 @@ object List {
       appendAsLast(incremented, item + 1)
     }
   }
+
+  def mapDoublesToStrings(list: List[Double]): List[String] =
+    reverse(mapToStrings(list, Nil))
+
+  private def mapToStrings(toMap: List[_], alreadyMapped: List[String]): List[String] =
+    toMap match {
+      case Nil =>
+        alreadyMapped
+      case Cons(head, tail) =>
+        mapToStrings(tail, Cons(head.toString, alreadyMapped))
+    }
 }
