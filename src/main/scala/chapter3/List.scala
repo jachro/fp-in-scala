@@ -163,4 +163,15 @@ object List {
       case Cons(head, tail) =>
         mapToStrings(tail, Cons(head.toString, alreadyMapped))
     }
+
+  def map[A, B](list: List[A], f: (A) => B): List[B] =
+
+  private def map[A, B](toMap: List[A], alreadyMapped: List[_], f: (A) => B): List[_] =
+    toMap match {
+      case Nil =>
+        alreadyMapped
+      case Cons(head, tail) =>
+        mapToStrings(tail, Cons(f(head), alreadyMapped))
+    }
+
 }
