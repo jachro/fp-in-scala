@@ -164,14 +164,45 @@ object List {
         mapToStrings(tail, Cons(head.toString, alreadyMapped))
     }
 
-  def map[A, B](list: List[A], f: (A) => B): List[B] =
+  def map[A, B](list: List[A])(f: (A) => B): List[B] = {
 
-  private def map[A, B](toMap: List[A], alreadyMapped: List[_], f: (A) => B): List[_] =
-    toMap match {
-      case Nil =>
-        alreadyMapped
-      case Cons(head, tail) =>
-        mapToStrings(tail, Cons(f(head), alreadyMapped))
-    }
+    @tailrec
+    def map[A, B](itemsToMap: List[A], itemsMapped: List[B])(f: A => B): List[B] =
+      itemsToMap match {
+        case Nil => itemsMapped
+        case Cons(head, tail) => map(tail, itemsMapped + f(head))(f)
+      }
+
+    map(list, Nil)(f)
+  }
+
+
+  private implicit class ListOps[A](list: List[A]) {
+
+    def +(elem: A): List[A] = addAtTheEnd(list, elem)
+
+    private def rebuildListWithTheItemAtTheEnd(list: List[A], item: A): List[A] =
+      list match {
+        case Nil => Cons(item, Nil)
+        case Cons(last, Nil) => Cons(last, Cons(item, Nil))
+        case Cons(last, tail) => Cons(last, rebuildListWithTheItemAtTheEnd(tail, item))
+      }
+
+    @tailrec
+    private def addAtTheEnd(list: List[A], item: A, stacked: List[A] = Nil): List[A] =
+      list match {
+        case Nil => Cons(item, Nil)
+        case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, Cons(item, Nil)))
+        case Cons(head, tail) => addAtTheEnd(tail, item, Cons(head, stacked))
+      }
+
+    @tailrec
+    private def takeFromTheStack(stacked: List[A], list: List[A]): List[A] =
+      stacked match {
+        case Nil => list
+        case Cons(head, Nil) => Cons(head, list)
+        case Cons(head, tail) => takeFromTheStack(tail, Cons(head, list))
+      }
+  }
 
 }
