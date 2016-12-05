@@ -205,4 +205,16 @@ object List {
       }
   }
 
+  def filter[A](list: List[A])(predicate: A => Boolean): List[A] = {
+
+    @tailrec
+    def filter(toBeFiltered: List[A], result: List[A]): List[A] = toBeFiltered match {
+      case Nil => result
+      case Cons(head, tail) if predicate(head) => filter(tail, result + head)
+      case Cons(_, tail) => filter(tail, result)
+    }
+
+    filter(list, Nil)
+  }
+
 }
