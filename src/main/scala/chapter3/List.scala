@@ -181,6 +181,12 @@ object List {
 
     def +(elem: A): List[A] = addAtTheEnd(list, elem)
 
+    def ++(another: List[A]): List[A] = another match {
+      case Nil => list
+      case Cons(head, Nil) => Cons(head, list)
+      case Cons(head, tail) => Cons(head, )
+    }
+
     private def rebuildListWithTheItemAtTheEnd(list: List[A], item: A): List[A] =
       list match {
         case Nil => Cons(item, Nil)
@@ -215,6 +221,18 @@ object List {
     }
 
     filter(list, Nil)
+  }
+
+  def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = {
+
+    def flatMap(input: List[A], output: List[B])(f: A => List[B]) = input match {
+      case Nil => output
+      case Cons(head, Nil) => output match {
+        case Nil => f(head)
+        case Cons(outHead, Nil) => Cons(outHead, input)
+        case Cons(outHead, outTail) =>
+      }
+    }
   }
 
 }
