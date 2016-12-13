@@ -179,13 +179,9 @@ object List {
 
   private implicit class ListOps[A](list: List[A]) {
 
-    def +(elem: A): List[A] = addAtTheEnd(list, elem)
+    def +(elem: A): List[A] = addItemAtTheEnd(list, elem)
 
-    def ++(another: List[A]): List[A] = another match {
-      case Nil => list
-      case Cons(head, Nil) => Cons(head, list)
-      case Cons(head, tail) => Cons(head, )
-    }
+    def ++(another: List[A]): List[A] = addListAtTheEnd(list, another)
 
     private def rebuildListWithTheItemAtTheEnd(list: List[A], item: A): List[A] =
       list match {
@@ -194,12 +190,21 @@ object List {
         case Cons(last, tail) => Cons(last, rebuildListWithTheItemAtTheEnd(tail, item))
       }
 
+
     @tailrec
-    private def addAtTheEnd(list: List[A], item: A, stacked: List[A] = Nil): List[A] =
+    private def addListAtTheEnd(list: List[A], another: List[A], stacked: List[A] = Nil): List[A] =
+      list match {
+        case Nil => another
+        case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, another))
+        case Cons(head, tail) => addListAtTheEnd(tail, another, Cons(head, stacked))
+      }
+
+    @tailrec
+    private def addItemAtTheEnd(list: List[A], item: A, stacked: List[A] = Nil): List[A] =
       list match {
         case Nil => Cons(item, Nil)
         case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, Cons(item, Nil)))
-        case Cons(head, tail) => addAtTheEnd(tail, item, Cons(head, stacked))
+        case Cons(head, tail) => addItemAtTheEnd(tail, item, Cons(head, stacked))
       }
 
     @tailrec
@@ -225,14 +230,14 @@ object List {
 
   def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = {
 
-    def flatMap(input: List[A], output: List[B])(f: A => List[B]) = input match {
-      case Nil => output
-      case Cons(head, Nil) => output match {
-        case Nil => f(head)
-        case Cons(outHead, Nil) => Cons(outHead, input)
-        case Cons(outHead, outTail) =>
+    @tailrec
+    def flatMap(input: List[A], output: List[B])(f: A => List[B]): List[B] = 
+      input match {
+        case Nil => output
+        case Cons(head, Nil) => output ++ f(head)
+        case Cons(head, tail) => flatMap(tail, output ++ f(head))(f)
       }
-    }
-  }
 
+    flatMap(list, Nil)(f)
+  }
 }
