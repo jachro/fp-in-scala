@@ -206,6 +206,12 @@ object List {
     flatMap(list, Nil)(f)
   }
 
+  def filterOnFlatMap[A](list: List[A])
+                        (predicate: A => Boolean): List[A] = flatMap(list) {
+    case i if predicate(i) => Cons(i, Nil)
+    case _ => Nil
+  }
+
   private implicit class ListOps[A](list: List[A]) {
 
     def +(elem: A): List[A] = addToTheEnd(list, elem)
