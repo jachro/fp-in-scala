@@ -1,5 +1,7 @@
 package chapter3
 
+import chapter3.List.length
+
 import scala.annotation.tailrec
 
 sealed trait List[+A] {
@@ -210,6 +212,21 @@ object List {
                         (predicate: A => Boolean): List[A] = flatMap(list) {
     case i if predicate(i) => Cons(i, Nil)
     case _ => Nil
+  }
+
+  def merge[A](first: List[A], second: List[A])
+              (combine: (A, A) => A): List[A] = {
+
+    def mergeF(first: List[A], second: List[A],
+               outcome: List[A] = Nil): List[A] =
+      first -> second match {
+        case (Nil, Nil) => outcome
+        case (Cons(h, tail), Nil) => mergeF(tail, Nil, outcome + h)
+        case (Nil, Cons(h, tail)) => mergeF(Nil, tail, outcome + h)
+        case (Cons(f, firstTail), Cons(s, secondTail)) => mergeF(firstTail, secondTail, outcome + combine(f, s))
+    }
+
+    mergeF(first, second)
   }
 
   private implicit class ListOps[A](list: List[A]) {
