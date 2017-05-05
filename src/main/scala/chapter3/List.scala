@@ -13,7 +13,9 @@ case object Nil extends List[Nothing] {
 case class Cons[+A](head: A, tail: List[A]) extends List[A] {
 
   override def toString: String = {
-    def headToString(converted: String, toConvert: List[A]): String =
+
+    def headToString(converted: String,
+                     toConvert: List[A]): String =
       toConvert match {
         case Nil =>
           converted
@@ -51,7 +53,7 @@ object List {
   }
 
   def setHead[A](head: A, list: List[A]): List[A] = list match {
-    case Cons(h, xs) => Cons[A](head, xs)
+    case Cons(_, xs) => Cons[A](head, xs)
     case Nil => List[A](head)
   }
 
@@ -67,9 +69,9 @@ object List {
   }
 
   def init[A](list: List[A]): List[A] = list match {
-    case Cons(h, Nil) => Nil
-    case Cons(h, xs) => Cons(h, init[A](xs))
     case Nil => Nil
+    case Cons(_, Nil) => Nil
+    case Cons(h, xs) => Cons(h, init[A](xs))
   }
 
   def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = as match {
@@ -80,14 +82,15 @@ object List {
   def sum2(ns: List[Int]) =
     foldRight(ns, 0)(_ + _)
 
-  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)((a, b) => a match {
-    case 0 => return 0.0
-    case x => a * b
-  }
+  def product2(ns: List[Double]): Double = foldRight(ns, 1.0)(
+    (a, b) => a match {
+      case 0 => return 0.0
+      case x => x * b
+    }
   )
 
   def length[A](l: List[A]): Int =
-    foldRight(l, 0)((a, b) => b + 1)
+    foldRight(l, 0)((_, b) => b + 1)
 
   @tailrec
   def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = l match {
@@ -137,6 +140,7 @@ object List {
   }
 
   def increment(list: List[Int]): List[Int] = {
+
     def unstash(stashed: List[Int], newList: List[Int]): List[Int] = stashed match {
       case Nil => newList
       case Cons(head, Nil) => Cons(head, newList)
@@ -230,4 +234,5 @@ object List {
         case Cons(head, tail) => takeFromTheStack(tail, Cons(head, list))
       }
   }
+
 }
