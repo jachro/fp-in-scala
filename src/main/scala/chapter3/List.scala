@@ -109,18 +109,19 @@ object List {
 
   def foldRightOnFoldLeft[A, B](l: List[A], z: B)(f: (A, B) => B): B = {
     val rev = foldLeft[A, List[A]](l, Nil)((r, h) => Cons(h, r))
-    foldLeft[A, B](rev, z)((b: B, a: A) => f(a, b))
+    foldLeft[A, B](rev, z)((b, a) => f(a, b))
   }
 
   def foldLeftOnFoldRight[A, B](l: List[A], z: B)(f: (B, A) => B): B = {
-    val rev = foldRight[A, List[A]](l, Nil)((h, r) => Cons(h, r))
-    foldRight[A, B](rev, z)((a: A, b: B) => f(b, a))
+    val rev = foldRight[A, List[A]](l, Nil)((i, acc) => acc + i)
+    foldRight[A, B](rev, z)((a, b) => f(b, a))
   }
 
   def append[A](list: List[A], item: A) =
     foldRight(list, List(item))((currentItem, newList) => Cons(currentItem, newList))
 
   def concatenate[A](list: List[List[A]]): List[A] = {
+
     def appendLists(list1: List[A], list2: List[A]) =
       foldLeft[A, List[A]](list2, list1)((newList1, list2Item) => Cons(list2Item, newList1))
 
@@ -176,46 +177,6 @@ object List {
     map(list, Nil)(f)
   }
 
-
-  private implicit class ListOps[A](list: List[A]) {
-
-    def +(elem: A): List[A] = addItemAtTheEnd(list, elem)
-
-    def ++(another: List[A]): List[A] = addListAtTheEnd(list, another)
-
-    private def rebuildListWithTheItemAtTheEnd(list: List[A], item: A): List[A] =
-      list match {
-        case Nil => Cons(item, Nil)
-        case Cons(last, Nil) => Cons(last, Cons(item, Nil))
-        case Cons(last, tail) => Cons(last, rebuildListWithTheItemAtTheEnd(tail, item))
-      }
-
-
-    @tailrec
-    private def addListAtTheEnd(list: List[A], another: List[A], stacked: List[A] = Nil): List[A] =
-      list match {
-        case Nil => another
-        case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, another))
-        case Cons(head, tail) => addListAtTheEnd(tail, another, Cons(head, stacked))
-      }
-
-    @tailrec
-    private def addItemAtTheEnd(list: List[A], item: A, stacked: List[A] = Nil): List[A] =
-      list match {
-        case Nil => Cons(item, Nil)
-        case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, Cons(item, Nil)))
-        case Cons(head, tail) => addItemAtTheEnd(tail, item, Cons(head, stacked))
-      }
-
-    @tailrec
-    private def takeFromTheStack(stacked: List[A], list: List[A]): List[A] =
-      stacked match {
-        case Nil => list
-        case Cons(head, Nil) => Cons(head, list)
-        case Cons(head, tail) => takeFromTheStack(tail, Cons(head, list))
-      }
-  }
-
   def filter[A](list: List[A])(predicate: A => Boolean): List[A] = {
 
     @tailrec
@@ -231,13 +192,42 @@ object List {
   def flatMap[A, B](list: List[A])(f: A => List[B]): List[B] = {
 
     @tailrec
-    def flatMap(input: List[A], output: List[B])(f: A => List[B]): List[B] = 
-      input match {
-        case Nil => output
-        case Cons(head, Nil) => output ++ f(head)
-        case Cons(head, tail) => flatMap(tail, output ++ f(head))(f)
-      }
+    def flatMap(input: List[A], output: List[B])
+               (f: A => List[B]): List[B] = input match {
+      case Nil => output
+      case Cons(head, Nil) => output ++ f(head)
+      case Cons(head, tail) => flatMap(tail, output ++ f(head))(f)
+    }
 
     flatMap(list, Nil)(f)
+  }
+
+  private implicit class ListOps[A](list: List[A]) {
+
+    def +(elem: A): List[A] = addToTheEnd(list, elem)
+
+    @tailrec
+    final def ++(another: List[A]): List[A] = another match {
+      case Nil => list
+      case Cons(head, Nil) => addToTheEnd(list, head)
+      case Cons(head, tail) => addToTheEnd(list, head) ++ tail
+    }
+
+
+    @tailrec
+    private def addToTheEnd(list: List[A], item: A, stacked: List[A] = Nil): List[A] =
+      list match {
+        case Nil => Cons(item, Nil)
+        case Cons(last, Nil) => takeFromTheStack(stacked, Cons(last, Cons(item, Nil)))
+        case Cons(head, tail) => addToTheEnd(tail, item, Cons(head, stacked))
+      }
+
+    @tailrec
+    private def takeFromTheStack(stacked: List[A], list: List[A]): List[A] =
+      stacked match {
+        case Nil => list
+        case Cons(head, Nil) => Cons(head, list)
+        case Cons(head, tail) => takeFromTheStack(tail, Cons(head, list))
+      }
   }
 }
