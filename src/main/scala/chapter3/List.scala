@@ -1,7 +1,5 @@
 package chapter3
 
-import chapter3.List.length
-
 import scala.annotation.tailrec
 
 sealed trait List[+A] {
@@ -224,7 +222,22 @@ object List {
         case (Cons(h, tail), Nil) => mergeF(tail, Nil, outcome + h)
         case (Nil, Cons(h, tail)) => mergeF(Nil, tail, outcome + h)
         case (Cons(f, firstTail), Cons(s, secondTail)) => mergeF(firstTail, secondTail, outcome + combine(f, s))
-    }
+      }
+
+    mergeF(first, second)
+  }
+
+  def zipWith[A, B, C](first: List[A], second: List[B])
+                      (combine: (Option[A], Option[B]) => C): List[C] = {
+
+    def mergeF(first: List[A], second: List[B],
+               outcome: List[C] = Nil): List[C] =
+      first -> second match {
+        case (Nil, Nil) => outcome
+        case (Cons(h, tail), Nil) => mergeF(tail, Nil, outcome + combine(Some(h), None))
+        case (Nil, Cons(h, tail)) => mergeF(Nil, tail, outcome + combine(None, Some(h)))
+        case (Cons(f, firstTail), Cons(s, secondTail)) => mergeF(firstTail, secondTail, outcome + combine(Some(f), Some(s)))
+      }
 
     mergeF(first, second)
   }
