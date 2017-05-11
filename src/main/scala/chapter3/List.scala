@@ -242,6 +242,24 @@ object List {
     mergeF(first, second)
   }
 
+  def hasSubsequence[A](list: List[A], sub: List[A]): Boolean = sub match {
+    case Nil => true
+    case _ =>
+
+      @tailrec
+      def checkIfHeadsAreSame(leftOnList: List[A], leftOnSub: List[A], lastEqual: Boolean): Boolean =
+        (leftOnList, leftOnSub, lastEqual) match {
+          case (_, Nil, true) => true
+          case (Nil, _, _) => false
+          case (_, _, false) if leftOnSub != sub => false
+          case (Cons(listH, listT), Cons(subH, _), false) if listH != subH => checkIfHeadsAreSame(listT, sub, lastEqual = false)
+          case (Cons(_, listT), Cons(_, subT), false) => checkIfHeadsAreSame(listT, subT, lastEqual = true)
+          case (Cons(listH, listT), Cons(subH, subT), true) => checkIfHeadsAreSame(listT, subT, lastEqual = listH == subH)
+        }
+
+      checkIfHeadsAreSame(list, sub, lastEqual = false)
+  }
+
   private implicit class ListOps[A](list: List[A]) {
 
     def +(elem: A): List[A] = addToTheEnd(list, elem)
