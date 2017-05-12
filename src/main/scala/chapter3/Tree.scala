@@ -39,6 +39,29 @@ object Tree {
       }
     }
 
+    implicit class IntTreeOps(tree: Tree[Int]) {
+
+      lazy val max: Int = {
+
+        def findMaxOfOne(previous: Int, tree: Tree[Int]): Int =
+          tree match {
+            case Leaf(v) => v max previous
+            case Branch(l, r) => findMaxOfTwo(previous, l, r)
+          }
+
+        @tailrec
+        def findMaxOfTwo(previous: Int, tree: Tree[Int], otherTree: Tree[Int]): Int =
+          tree -> otherTree match {
+            case (Leaf(l), Leaf(r)) => previous max l max r
+            case (Leaf(leaf), Branch(l, r)) => findMaxOfTwo(previous max leaf, l, r)
+            case (Branch(l, r), Leaf(leaf)) => findMaxOfTwo(previous max leaf, l, r)
+            case (Branch(l, r), b2@Branch(_, _)) => findMaxOfTwo(previous, l, Branch(r, b2))
+          }
+
+        findMaxOfOne(Int.MinValue, tree)
+      }
+    }
+
   }
 
 }
