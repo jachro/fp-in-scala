@@ -37,6 +37,28 @@ object Tree {
 
         fold(0, tree)
       }
+
+      lazy val depth: Int = {
+
+        type TreeDepth = (Tree[A], Int)
+
+        @tailrec
+        def checkDeeper(treeToClimb: TreeDepth,
+                        maybeRightTree: Option[TreeDepth] = None,
+                        maybeOtherTree: Option[TreeDepth] = None,
+                        maxDepth: Int = 0): Int =
+          treeToClimb -> maybeRightTree match {
+            case ((Leaf(_), dpth), None) => maybeOtherTree match {
+              case Some(other) => checkDeeper(other, None, None, dpth + 1 max maxDepth)
+              case None => dpth + 1 max maxDepth
+            }
+            case ((Leaf(_), dpth), Some(right)) => checkDeeper(right, maybeOtherTree, None, dpth + 1 max maxDepth)
+            case ((Branch(left, right), dpth), None) => checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), maybeOtherTree, dpth + 1 max maxDepth)
+            case ((Branch(left, right), dpth), previousRight) => checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), previousRight, dpth + 1 max maxDepth)
+          }
+
+        checkDeeper(tree -> 0)
+      }
     }
 
     implicit class IntTreeOps(tree: Tree[Int]) {
