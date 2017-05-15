@@ -52,12 +52,31 @@ object Tree {
               case Some(other) => checkDeeper(other, None, None, dpth + 1 max maxDepth)
               case None => dpth + 1 max maxDepth
             }
-            case ((Leaf(_), dpth), Some(right)) => checkDeeper(right, maybeOtherTree, None, dpth + 1 max maxDepth)
-            case ((Branch(left, right), dpth), None) => checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), maybeOtherTree, dpth + 1 max maxDepth)
-            case ((Branch(left, right), dpth), previousRight) => checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), previousRight, dpth + 1 max maxDepth)
+            case ((Leaf(_), dpth), Some(right)) =>
+              checkDeeper(right, maybeOtherTree, None, dpth + 1 max maxDepth)
+            case ((Branch(left, right), dpth), None) =>
+              checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), maybeOtherTree, dpth + 1 max maxDepth)
+            case ((Branch(left, right), dpth), previousRight) =>
+              checkDeeper(left -> (dpth + 1), Some(right -> (dpth + 1)), previousRight, dpth + 1 max maxDepth)
           }
 
         checkDeeper(tree -> 0)
+      }
+
+      def map[B](f: A => B): Tree[B] = {
+
+        def mapDeeper(treeToClimb: Tree[A], maybeOtherTreeToClimb: Tree[A]): Tree[B] =
+          treeToClimb -> maybeOtherTreeToClimb match {
+            case (Leaf(l), Leaf(r)) => Branch(Leaf(f(l)), Leaf(f(r)))
+            case (Leaf(v), Branch(left, right)) => Branch(Leaf(f(v)), mapDeeper(left, right))
+            case (Branch(left, right), Leaf(v)) => Branch(mapDeeper(left, right), Leaf(f(v)))
+            case (Branch(ll, lr), Branch(rl, rr)) => Branch(mapDeeper(ll, lr), mapDeeper(rl, rr))
+          }
+
+        tree match {
+          case Leaf(v) => Leaf(f(v))
+          case Branch(l, r) => mapDeeper(l, r)
+        }
       }
     }
 

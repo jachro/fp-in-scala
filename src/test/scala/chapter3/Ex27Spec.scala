@@ -27,7 +27,7 @@ class Ex27Spec extends WordSpec with Matchers {
       trunk.depth shouldBe 5
     }
   }
-  
+
   private val test2Tree =
     """
      |         t
