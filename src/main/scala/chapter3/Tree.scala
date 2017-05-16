@@ -78,6 +78,22 @@ object Tree {
           case Branch(l, r) => mapDeeper(l, r)
         }
       }
+
+      def fold[B](z: B)(op: (B, Tree[A]) => B): B = {
+
+        def foldNext(acc: B, treeToClimb: Tree[A], maybeOtherTreeToClimb: Tree[A]): B =
+          treeToClimb -> maybeOtherTreeToClimb match {
+            case (vl@Leaf(_), vr@Leaf(_)) => op(op(acc, vl), vr)
+            case (v@Leaf(_), b@Branch(left, right)) => foldNext(op(op(acc, v), b), left, right)
+            case (b@Branch(left, right), v@Leaf(_)) => foldNext(op(op(acc, b), v), left, right)
+            case (bl@Branch(ll, lr), br@Branch(rl, rr)) => foldNext(foldNext(op(op(acc, bl), br), ll, lr), rl, rr)
+          }
+
+        tree match {
+          case v@Leaf(_) => op(z, v)
+          case b@Branch(l, r) => foldNext(op(z, b), l, r)
+        }
+      }
     }
 
     implicit class IntTreeOps(tree: Tree[Int]) {
