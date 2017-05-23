@@ -47,11 +47,11 @@ class Ex1Spec extends WordSpec with Matchers {
       Some(1).orElse(Some("1")) shouldBe Some(1)
     }
 
-    "return default value for None" in {
+    "return Some passed as an 'orElse' arg when invoked on None" in {
       None.orElse(Some("1")) shouldBe Some("1")
     }
 
-    "return default None for None when specified as default" in {
+    "return None passed as an 'orElse' arg when invoked on None" in {
       None.orElse(None) shouldBe None
     }
   }
