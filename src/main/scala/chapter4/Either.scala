@@ -22,6 +22,19 @@ sealed trait Either[+E, +A] {
     thisRight <- this
     thatRight <- that
   } yield f(thisRight, thatRight)
+
+  def map2Nel[EE >: E, EEE >: EE, B, C](that: Either[EE, B])
+                                       (f: (A, B) => C): Either[List[EEE], C] = {
+    this -> that match {
+      case (Right(thisV), Right(thatV)) => Right(f(thisV, thatV))
+      case _ => Left(
+        Seq(this, that).foldLeft(List.empty[EEE]) {
+          case (errors, Left(err)) => errors :+ err
+          case (errors, _) => errors
+        }
+      )
+    }
+  }
 }
 
 case class Left[+E](error: E) extends Either[E, Nothing]
