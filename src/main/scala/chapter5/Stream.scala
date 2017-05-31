@@ -18,40 +18,22 @@ sealed trait Stream[+A] {
     convertToList(this)
   }
 
-  def take(n: Int): Stream[A] = {
-
-    def takeMoreOrEmpty(stream: Stream[A],
-                        counter: Int): Stream[A] = stream match {
-      case Empty => empty
-      case Cons(hd, ta) if counter > 0 => Cons(hd, () => takeMoreOrEmpty(ta(), counter - 1))
-      case Cons(_, _) => empty
-    }
-
-    takeMoreOrEmpty(this, n)
+  def take(n: Int): Stream[A] = this match {
+    case Empty => empty
+    case Cons(hd, ta) if n > 0 => Cons(hd, () => ta().take(n - 1))
+    case Cons(_, _) => empty
   }
 
-  def drop(n: Int): Stream[A] = {
-
-    @tailrec
-    def dropOrTake(stream: Stream[A],
-                   counter: Int): Stream[A] = stream match {
-      case Empty => empty
-      case Cons(_, ta) if counter > 0 => dropOrTake(ta(), counter - 1)
-      case c@Cons(_, _) => c
-    }
-
-    dropOrTake(this, n)
+  def drop(n: Int): Stream[A] = this match {
+    case Empty => empty
+    case Cons(_, ta) if n > 0 => ta().drop(n - 1)
+    case c@Cons(_, _) => c
   }
 
-  def takeWhile(p: A => Boolean): Stream[A] = {
-
-    def takeMoreOrEmpty(stream: Stream[A]): Stream[A] = stream match {
-      case Empty => empty
-      case Cons(hd, ta) if p(hd()) => Cons(hd, () => takeMoreOrEmpty(ta()))
-      case Cons(_, _) => empty
-    }
-
-    takeMoreOrEmpty(this)
+  def takeWhile(p: A => Boolean): Stream[A] = this match {
+    case Empty => empty
+    case Cons(h, t) if p(h()) => Cons(h, () => t().takeWhile(p))
+    case Cons(_, _) => empty
   }
 
   def foldRight[B](z: B)(f: (A, => B) => B): B = this match {
@@ -59,18 +41,11 @@ sealed trait Stream[+A] {
     case Empty => z
   }
 
-  def forAll(p: A => Boolean): Boolean = {
-
-    def checkThisAndGoToNext(s: Stream[A]): Boolean = s match {
-      case Empty => true
-      case Cons(h, t) => p(h()) && checkThisAndGoToNext(t())
-    }
-
-    this match {
-      case Empty => false
-      case other => checkThisAndGoToNext(other)
-    }
+  def forAll(p: A => Boolean): Boolean = this match {
+    case Empty => true
+    case Cons(h, t) => p(h()) && t().forAll(p)
   }
+
 }
 
 case object Empty extends Stream[Nothing]

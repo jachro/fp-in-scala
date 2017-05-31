@@ -6,8 +6,8 @@ class Ex4Spec extends WordSpec with Matchers {
 
   "forAll" should {
 
-    "return false for an empty Stream" in {
-      Stream.empty[Int].forAll(_ < 3) shouldBe false
+    "return true for an empty Stream" in {
+      Stream.empty[Int].forAll(_ < 3) shouldBe true
     }
 
     "return false when there are no elements matching the predicate" in {
