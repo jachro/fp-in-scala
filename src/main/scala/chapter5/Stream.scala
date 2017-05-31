@@ -4,26 +4,42 @@ import scala.annotation.tailrec
 
 sealed trait Stream[+A] {
 
+  import Stream._
+
   def toList: List[A] = {
 
     @tailrec
-    def convert(stream: Stream[A],
-                converted: List[A] = Nil): List[A] = stream match {
+    def convertToList(stream: Stream[A],
+                      converted: List[A] = Nil): List[A] = stream match {
       case Empty => converted
-      case Cons(hd, ta) => convert(ta(), converted :+ hd())
+      case Cons(hd, ta) => convertToList(ta(), converted :+ hd())
     }
 
-    convert(this)
+    convertToList(this)
+  }
+
+  def take(n: Int): Stream[A] = {
+
+    def takeMoreOrEmpty(stream: Stream[A],
+                 counter: Int): Stream[A] = stream match {
+      case Empty => empty
+      case Cons(hd, ta) if counter > 0 => Cons(hd, () => takeMoreOrEmpty(ta(), counter - 1))
+      case Cons(_, _) => empty
+    }
+
+    takeMoreOrEmpty(this, n)
   }
 }
 
 case object Empty extends Stream[Nothing]
 
-case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
+case class Cons[+A](h: () => A,
+                    t: () => Stream[A]) extends Stream[A]
 
 object Stream {
 
   def cons[A](h: => A, t: => Stream[A]): Stream[A] = {
+
     lazy val hd = h
     lazy val ta = t
 
