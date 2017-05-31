@@ -42,6 +42,17 @@ sealed trait Stream[+A] {
 
     dropOrTake(this, n)
   }
+
+  def takeWhile(p: A => Boolean): Stream[A] = {
+
+    def takeMoreOrEmpty(stream: Stream[A]): Stream[A] = stream match {
+      case Empty => empty
+      case Cons(hd, ta) if p(hd()) => Cons(hd, () => takeMoreOrEmpty(ta()))
+      case Cons(_, _) => empty
+    }
+
+    takeMoreOrEmpty(this)
+  }
 }
 
 case object Empty extends Stream[Nothing]
