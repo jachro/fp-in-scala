@@ -53,6 +53,24 @@ sealed trait Stream[+A] {
 
     takeMoreOrEmpty(this)
   }
+
+  def foldRight[B](z: B)(f: (A, => B) => B): B = this match {
+    case Cons(hd, ta) => f(hd(), ta().foldRight(z)(f))
+    case Empty => z
+  }
+
+  def forAll(p: A => Boolean): Boolean = {
+
+    def checkThisAndGoToNext(s: Stream[A]): Boolean = s match {
+      case Empty => true
+      case Cons(h, t) => p(h()) && checkThisAndGoToNext(t())
+    }
+
+    this match {
+      case Empty => false
+      case other => checkThisAndGoToNext(other)
+    }
+  }
 }
 
 case object Empty extends Stream[Nothing]
