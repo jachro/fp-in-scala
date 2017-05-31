@@ -21,13 +21,26 @@ sealed trait Stream[+A] {
   def take(n: Int): Stream[A] = {
 
     def takeMoreOrEmpty(stream: Stream[A],
-                 counter: Int): Stream[A] = stream match {
+                        counter: Int): Stream[A] = stream match {
       case Empty => empty
       case Cons(hd, ta) if counter > 0 => Cons(hd, () => takeMoreOrEmpty(ta(), counter - 1))
       case Cons(_, _) => empty
     }
 
     takeMoreOrEmpty(this, n)
+  }
+
+  def drop(n: Int): Stream[A] = {
+
+    @tailrec
+    def dropOrTake(stream: Stream[A],
+                   counter: Int): Stream[A] = stream match {
+      case Empty => empty
+      case Cons(_, ta) if counter > 0 => dropOrTake(ta(), counter - 1)
+      case c@Cons(_, _) => c
+    }
+
+    dropOrTake(this, n)
   }
 }
 
