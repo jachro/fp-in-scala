@@ -49,6 +49,10 @@ sealed trait Stream[+A] {
   lazy val headOption: Option[A] = foldRight(None: Option[A]) {
     case (i, _) => Some(i)
   }
+
+  def map[B](f: A => B): Stream[B] = foldRight(empty[B]) {
+    case (i, res) => cons(f(i), res)
+  }
 }
 
 case object Empty extends Stream[Nothing]
