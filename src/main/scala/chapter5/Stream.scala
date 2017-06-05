@@ -92,4 +92,6 @@ object Stream {
     else cons(items.head, apply(items.tail: _*))
 
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
+
+  def ints(start: Int): Stream[Int] = cons(start, ints(start + 1))
 }
