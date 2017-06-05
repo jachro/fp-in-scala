@@ -25,4 +25,16 @@ class Ex7Spec extends WordSpec with Matchers {
       Stream(1, 2, 3).filter(_ < 3).toList shouldBe List(1, 2)
     }
   }
+
+  "append" should {
+
+    "return a Stream with the appended elements only for an empty Stream" in {
+      Stream.empty[Int].append(1).append(2).toList shouldBe List(1, 2)
+    }
+
+    "return a Stream with the appended element at the end" in {
+      Stream(1, 2).append(3).toList shouldBe List(1, 2, 3)
+    }
+  }
+
 }

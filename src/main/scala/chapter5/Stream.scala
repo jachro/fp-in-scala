@@ -58,6 +58,10 @@ sealed trait Stream[+A] {
     case (i, res) if p(i) => cons(i, res)
     case (_, res) => res
   }
+
+  def append[B >: A](i: B): Stream[B] = foldRight[Stream[B]](cons(i, empty[B])) {
+    case (item, res) => cons(item, res)
+  }
 }
 
 case object Empty extends Stream[Nothing]
