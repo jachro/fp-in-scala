@@ -37,4 +37,14 @@ class Ex7Spec extends WordSpec with Matchers {
     }
   }
 
+  "flatMap" should {
+
+    "return an empty Stream for an empty Stream" in {
+      Stream.empty[Int].flatMap(i => Stream(i.toString)) shouldBe Stream.empty[Int]
+    }
+
+    "return a Stream with all elements converted with the given function" in {
+      Stream(1, 2).flatMap(i => Stream(i.toString)).toList shouldBe List("1", "2")
+    }
+  }
 }
