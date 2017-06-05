@@ -53,6 +53,11 @@ sealed trait Stream[+A] {
   def map[B](f: A => B): Stream[B] = foldRight(empty[B]) {
     case (i, res) => cons(f(i), res)
   }
+
+  def filter(p: A => Boolean): Stream[A] = foldRight(empty[A]) {
+    case (i, res) if p(i) => cons(i, res)
+    case (_, res) => res
+  }
 }
 
 case object Empty extends Stream[Nothing]
