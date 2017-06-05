@@ -90,4 +90,6 @@ object Stream {
   def apply[A](items: A*): Stream[A] =
     if (items.isEmpty) empty
     else cons(items.head, apply(items.tail: _*))
+
+  def constant[A](a: A): Stream[A] = cons(a, constant(a))
 }
