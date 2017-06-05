@@ -46,6 +46,9 @@ sealed trait Stream[+A] {
     case Cons(h, t) => p(h()) && t().forAll(p)
   }
 
+  lazy val headOption: Option[A] = foldRight(None: Option[A]) {
+    case (i, _) => Some(i)
+  }
 }
 
 case object Empty extends Stream[Nothing]
