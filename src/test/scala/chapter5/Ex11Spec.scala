@@ -17,5 +17,17 @@ class Ex11Spec extends WordSpec with Matchers {
         case (previous, next) => Some(previous, next -> (previous + next))
       }.takeWhile(_ < 20).toList shouldBe List(0, 1, 1, 2, 3, 5, 8, 13)
     }
+
+    "allow to build a finite Stream" in {
+
+      var counter = 0
+
+      Stream.unfold(0){
+        _ => if (counter < 5) {
+          counter = counter + 1
+          Some(counter, counter)
+        } else None
+      }.toList shouldBe List(1, 2, 3, 4, 5)
+    }
   }
 }
