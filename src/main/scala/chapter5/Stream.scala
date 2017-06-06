@@ -101,4 +101,10 @@ object Stream {
 
     next(0, 1)
   }
+
+  def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = {
+    f(z).map {
+      case (nextValue, nextState) => cons(nextValue, unfold(nextState)(f))
+    }.getOrElse(empty)
+  }
 }
