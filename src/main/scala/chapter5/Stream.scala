@@ -94,4 +94,11 @@ object Stream {
   def constant[A](a: A): Stream[A] = cons(a, constant(a))
 
   def from(start: Int): Stream[Int] = cons(start, from(start + 1))
+
+  def fibs: Stream[Int] = {
+
+    def next(prvs: Int, nxt: Int): Stream[Int] = cons(prvs, next(nxt, prvs + nxt))
+
+    next(0, 1)
+  }
 }
