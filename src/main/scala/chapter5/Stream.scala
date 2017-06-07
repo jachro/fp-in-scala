@@ -89,6 +89,15 @@ sealed trait Stream[+A] {
       if (p(h())) Some(h(), t())
       else None
   }
+
+  def zipWithOnUnfold[B](that: Stream[B]): Stream[(A, B)] = unfold(this -> that) {
+    case (Empty, _) => None
+    case (_, Empty) => None
+    case (Cons(thish, thist), Cons(thath, thatt)) => Some(
+      thish() -> thath(),
+      thist() -> thatt()
+    )
+  }
 }
 
 case object Empty extends Stream[Nothing]
