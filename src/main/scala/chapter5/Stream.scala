@@ -90,11 +90,27 @@ sealed trait Stream[+A] {
       else None
   }
 
-  def zipWithOnUnfold[B](that: Stream[B]): Stream[(A, B)] = unfold(this -> that) {
+  def zipWith[B](that: Stream[B]): Stream[(A, B)] = unfold(this -> that) {
     case (Empty, _) => None
     case (_, Empty) => None
     case (Cons(thish, thist), Cons(thath, thatt)) => Some(
       thish() -> thath(),
+      thist() -> thatt()
+    )
+  }
+
+  def zipAll[B](that: Stream[B]): Stream[(Option[A], Option[B])] = unfold(this -> that) {
+    case (Empty, Empty) => None
+    case (Empty, Cons(thath, thatt)) => Some(
+      None -> Some(thath()),
+      empty -> thatt()
+    )
+    case (Cons(thish, thist), Empty) => Some(
+      Some(thish()) -> None,
+      thist() -> empty
+    )
+    case (Cons(thish, thist), Cons(thath, thatt)) => Some(
+      Some(thish()) -> Some(thath()),
       thist() -> thatt()
     )
   }
