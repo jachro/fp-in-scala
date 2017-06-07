@@ -76,6 +76,12 @@ sealed trait Stream[+A] {
       t()
     )
   }
+
+  def takeOnUnfold(n: Int): Stream[A] = unfold(this -> n) {
+    case (Empty, _) => None
+    case (_, 0) => None
+    case (Cons(h, t), counter) => Some(h(), t() -> (counter - 1))
+  }
 }
 
 case object Empty extends Stream[Nothing]
