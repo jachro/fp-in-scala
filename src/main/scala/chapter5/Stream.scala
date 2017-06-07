@@ -68,6 +68,14 @@ sealed trait Stream[+A] {
       case (ci, ar) => cons(ci, ar)
     }
   }
+
+  def mapOnUnfold[B](f: A => B): Stream[B] = unfold(this) {
+    case Empty => None
+    case Cons(h, t) => Some(
+      f(h()),
+      t()
+    )
+  }
 }
 
 case object Empty extends Stream[Nothing]
