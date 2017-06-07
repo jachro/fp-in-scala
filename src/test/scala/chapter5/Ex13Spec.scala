@@ -19,5 +19,12 @@ class Ex13Spec extends WordSpec with Matchers {
 
       Stream(1, 2, 3).takeOnUnfold(2).toList shouldBe List(1, 2)
     }
+
+    "allow to be used to build the 'takeWhile' method" in {
+
+      Stream.empty[Int].takeWhileOnUnfold(_ < 3) shouldBe Stream.empty[Int]
+
+      Stream(1, 2, 3).takeWhileOnUnfold(_ < 3).toList shouldBe List(1, 2)
+    }
   }
 }
