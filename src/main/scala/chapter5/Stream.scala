@@ -129,6 +129,39 @@ sealed trait Stream[+A] {
     case Some(Empty) => Some(empty[A], None)
     case None => None
   }
+
+  def scanRight[B](z: B)(f: (A, B) => B): Stream[B] = {
+
+    def intermediateResults[C](s: Stream[A]): Stream[A => B] = s match {
+      case c@Cons(h, t) if c == this =>
+        intermediateResults(t())
+      case Cons(h, t) =>
+        val newT@Cons(newH, _) = intermediateResults(t())
+        cons(f(_, newH()(h())), newT)
+      case Empty => cons(f(_, z), empty)
+    }
+
+    unfold[B, Option[(Stream[A], Stream[A => B])]](Some(this -> intermediateResults(this))) {
+      case Some((Cons(h, t), Cons(resultsH, resultsT))) =>
+        Some(resultsH()(h()), Some(t() -> resultsT()))
+      case Some(_) =>
+        Some(z, None)
+      case None => None
+    }
+  }
+
+  def scanRightOnUnfoldAndFoldRight[B](z: B)(f: (A, B) => B): Stream[B] = {
+
+    val conditionedF: (A, => B) => B = f(_, _)
+
+    unfold[B, Option[Stream[A]]](Some(this)) {
+      case Some(s@Cons(_, t)) =>
+        Some(s.foldRight(z)(conditionedF) -> Some(t()))
+      case Some(_) =>
+        Some(z -> None)
+      case None => None
+    }
+  }
 }
 
 case object Empty extends Stream[Nothing]
