@@ -32,6 +32,15 @@ object RNG {
     val (d3, nextRng3) = double(nextRng2)
     (d1, d2, d3) -> nextRng3
   }
+
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+    if (count > 0) {
+      val (int, nextRng) = rng.nextInt
+      val (intsList, nextNextRng) = ints(count - 1)(nextRng)
+      (int :: intsList) -> nextNextRng
+    } else {
+      Nil -> rng
+    }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
