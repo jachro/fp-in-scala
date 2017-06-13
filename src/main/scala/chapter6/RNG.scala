@@ -20,6 +20,11 @@ object RNG {
       positiveNumerator.toDouble / Int.MaxValue -> nextRng
   }
 
+  def intDouble(rng: RNG): ((Int, Double), RNG) = {
+    val (i, nextRng) = rng.nextInt
+    val (d, nextNextRng) = double(nextRng)
+    (i -> d, nextNextRng)
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
