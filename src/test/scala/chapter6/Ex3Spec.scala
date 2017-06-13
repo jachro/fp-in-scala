@@ -116,6 +116,47 @@ class Ex3Spec extends WordSpec with Matchers {
     }
   }
 
+  "(Double, Double, Double)" should {
+
+    "return (Double, Double, Double)" in {
+
+      val (v, nextRng) = RNG.double3(TestRng(-1))
+
+      v shouldBe (1D/Int.MaxValue, 0D, 1D/Int.MaxValue)
+      nextRng should not be TestRng(-1)
+      nextRng should not be TestRng(0)
+      nextRng should not be TestRng(1)
+    }
+
+    "return the same results when called multiple times on the same RNG object" in {
+
+      val (v, nextRng) = RNG.double3(TestRng(0))
+
+      nextRng should not be TestRng(0)
+      nextRng should not be TestRng(1)
+      nextRng should not be TestRng(2)
+
+      val (v1, nextRng1) = RNG.double3(TestRng(0))
+
+      v1 shouldBe v
+      nextRng1 shouldBe nextRng
+    }
+
+    "return different results when called on the returned RNG" in {
+
+      val (v, nextRng) = RNG.double3(TestRng(0))
+
+      nextRng should not be TestRng(0)
+      nextRng should not be TestRng(1)
+      nextRng should not be TestRng(2)
+
+      val (v1, nextRng1) = RNG.double3(nextRng)
+
+      v1 should not be v
+      nextRng1 should not be nextRng
+    }
+  }
+
   private case class TestRng(n: Int) extends RNG {
 
     def nextInt: (Int, RNG) = n -> TestRng(n + 1)

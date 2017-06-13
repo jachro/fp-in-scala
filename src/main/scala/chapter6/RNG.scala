@@ -25,6 +25,13 @@ object RNG {
     val ((i, d), nextRng) = intDouble(rng)
     (d -> i) -> nextRng
   }
+
+  def double3(rng: RNG): ((Double, Double, Double), RNG) = {
+    val (d1, nextRng1) = double(rng)
+    val (d2, nextRng2) = double(nextRng1)
+    val (d3, nextRng3) = double(nextRng2)
+    (d1, d2, d3) -> nextRng3
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
