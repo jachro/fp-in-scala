@@ -8,22 +8,22 @@ trait RNG {
 object RNG {
 
   def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
-    case (Int.MinValue, nextRng) => 0 -> nextRng
-    case (int, nextRng) if int < 0 => -int -> nextRng
-    case (int, nextRng) => int -> nextRng
+    case (int, nextRng) => (if (int < 0) -(int % Int.MinValue) else int) -> nextRng
   }
 
-  def double(rng: RNG): (Double, RNG) = rng.nextInt match {
-    case (int, nextRng) =>
-      val numerator = int % Int.MaxValue
-      val positiveNumerator = if (numerator < 0) -numerator else numerator
-      positiveNumerator.toDouble / Int.MaxValue -> nextRng
+  def double(rng: RNG): (Double, RNG) = nonNegativeInt(rng) match {
+    case (int, nextRng) => (int % Int.MaxValue).toDouble / Int.MaxValue -> nextRng
   }
 
   def intDouble(rng: RNG): ((Int, Double), RNG) = {
     val (i, nextRng) = rng.nextInt
     val (d, nextNextRng) = double(nextRng)
     (i -> d, nextNextRng)
+  }
+
+  def doubleInt(rng: RNG): ((Double, Int), RNG) = {
+    val ((i, d), nextRng) = intDouble(rng)
+    (d -> i) -> nextRng
   }
 }
 

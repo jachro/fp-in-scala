@@ -14,7 +14,7 @@ class Ex2Spec extends WordSpec with Matchers {
       nextRng should not be TestRng(0)
     }
 
-    "return 0 if RNG.nextInt returns Int.MaxInt" in {
+    "return 0 if RNG.nextInt returns Int.MaxValue" in {
 
       val (v, nextRng) = RNG.double(TestRng(Int.MaxValue))
 
@@ -39,12 +39,11 @@ class Ex2Spec extends WordSpec with Matchers {
       nextRng should not be TestRng(-3)
     }
 
-    "use the expression as in the test above and drop minus " +
-      "if the RNG.nextInt returns the Int.MinValue" in {
+    "return 0 if the nonNegative returns 0" in {
 
       val (v, nextRng) = RNG.double(TestRng(Int.MinValue))
 
-      v shouldBe 1.toDouble/Int.MaxValue
+      v shouldBe 0D
       nextRng should not be TestRng(Int.MinValue)
     }
 
