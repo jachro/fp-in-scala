@@ -62,6 +62,14 @@ object RNG {
 
     (i % Int.MaxValue).toDouble / Int.MaxValue -> nextRng
   }
+
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = rng => {
+
+    val (i, rngI) = ra(rng)
+    val (d, rngD) = rb(rngI)
+
+    f(i, d) -> rngD
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
