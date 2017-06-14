@@ -2,10 +2,16 @@ package chapter6
 
 trait RNG {
 
+  import RNG._
+
   def nextInt: (Int, RNG)
+
+  val int: Rand[Int] = _.nextInt
 }
 
 object RNG {
+
+  type Rand[+A] = RNG => (A, RNG)
 
   def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
     case (int, nextRng) => (if (int < 0) -(int % Int.MinValue) else int) -> nextRng
@@ -41,6 +47,15 @@ object RNG {
     } else {
       Nil -> rng
     }
+
+  def unit[A](a: A): Rand[A] =
+    rnd => (a, rnd)
+
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] = {
+    rng =>
+      val (a, newRng) = s(rng)
+      (f(a), newRng)
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
