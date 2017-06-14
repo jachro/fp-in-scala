@@ -51,10 +51,16 @@ object RNG {
   def unit[A](a: A): Rand[A] =
     rnd => (a, rnd)
 
-  def map[A, B](s: Rand[A])(f: A => B): Rand[B] = {
-    rng =>
-      val (a, newRng) = s(rng)
-      (f(a), newRng)
+  def map[A, B](s: Rand[A])(f: A => B): Rand[B] = rng => {
+    val (a, newRng) = s(rng)
+    (f(a), newRng)
+  }
+
+  lazy val doubleOnMap: Rand[Double] = rng => {
+
+    val (i, nextRng) = nonNegativeInt(rng)
+
+    (i % Int.MaxValue).toDouble / Int.MaxValue -> nextRng
   }
 }
 
