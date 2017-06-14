@@ -70,6 +70,23 @@ object RNG {
 
     f(i, d) -> rngD
   }
+
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = rng => {
+
+    def nextItem(randList: List[Rand[A]]): (List[A], RNG) = randList match {
+      case Nil =>
+        Nil -> rng
+      case rand :: Nil =>
+        val (i, nextRng) = rand(rng)
+        (i :: Nil) -> nextRng
+      case rand :: randTail =>
+        val (list, currentRng) = nextItem(randTail)
+        val (i, nextRng) = rand(currentRng)
+        (list :+ i) -> nextRng
+    }
+
+    nextItem(fs)
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
