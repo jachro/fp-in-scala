@@ -12,7 +12,7 @@ class Ex8Spec extends WordSpec with Matchers {
 
       def nonNegativeLessThan(n: Int): Rand[Int] = RNG.flatMap(nonNegativeInt) { int =>
         val mod = int % n
-        if (int + (n-1) - mod >= 0) RNG => mod -> RNG
+        if (int + (n - 1) - mod >= 0) RNG => mod -> RNG
         else nonNegativeLessThan(n)
       }
 
@@ -25,4 +25,5 @@ class Ex8Spec extends WordSpec with Matchers {
   private case class TestRng(n: Int) extends RNG {
     def nextInt: (Int, RNG) = n -> TestRng(n + 1)
   }
+
 }
