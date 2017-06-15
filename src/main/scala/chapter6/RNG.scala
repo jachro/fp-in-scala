@@ -98,6 +98,15 @@ object RNG {
                         (f: A => B): Rand[B] = flatMap(s) {
     a => rng => f(a) -> rng
   }
+
+  def map2OnFlatMap[A, B, C](ra: Rand[A], rb: Rand[B])
+                            (f: (A, B) => C): Rand[C] = flatMap(ra) {
+    a =>
+      rngA =>
+        flatMap(rb) {
+          b => rngB => f(a, b) -> rngB
+        }(rngA)
+  }
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
