@@ -11,7 +11,7 @@ trait RNG {
 
 object RNG {
 
-  type Rand[+A] = RNG => (A, RNG)
+  type Rand[A] = State.State[RNG, A]
 
   def nonNegativeInt(rng: RNG): (Int, RNG) = rng.nextInt match {
     case (int, nextRng) => (if (int < 0) -(int % Int.MinValue) else int) -> nextRng
