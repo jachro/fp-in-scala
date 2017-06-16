@@ -7,10 +7,15 @@ case class State[S, +A](run: S => (A, S)) {
 
   def map[B](f: A => B): S => (B, S) =
     s => {
-      val (b, newS) = run(s)
-      f(b) -> newS
+      val (a, newS) = run(s)
+      f(a) -> newS
     }
 
+  def flatMap[B](f: A => (S => (B, S))): S => (B, S) =
+    s => {
+      val (a, newS) = run(s)
+      f(a)(newS)
+    }
 }
 
 object State {

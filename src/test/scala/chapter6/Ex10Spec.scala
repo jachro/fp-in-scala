@@ -61,6 +61,26 @@ class Ex10Spec extends WordSpec with Matchers {
     }
   }
 
+  "State.flatMap" should {
+
+    def nonNegativeLessThan(n: Int): RNG => (Int, RNG) = State(nonNegativeInt) flatMap[Int] {
+      int => {
+        val mod = int % n
+        if (int + (n - 1) - mod >= 0) rng => mod -> rng
+        else nonNegativeLessThan(n)
+      }
+    }
+
+    "return an int which is non-negative and less than the given value" in {
+
+      val (v, rng) = nonNegativeLessThan(10)(TestRng(Int.MaxValue))
+
+      v should (be >= 0 and be < 10)
+      rng should not be TestRng(0)
+
+    }
+  }
+
   private case class TestRng(n: Int) extends RNG {
     def nextInt: (Int, RNG) = n -> TestRng(n + 1)
   }
