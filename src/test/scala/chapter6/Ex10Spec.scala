@@ -81,6 +81,22 @@ class Ex10Spec extends WordSpec with Matchers {
     }
   }
 
+  "State.sequence" should {
+
+    def intsOnSequence(n: Int): State.State[RNG, List[Int]] =
+      State.sequence(List.fill(n)(SimpleRNG(0).int))
+
+    "allow to a List on ints of a given size" in {
+
+      val (v, nextRng) = intsOnSequence(3)(TestRng(0))
+
+      v shouldBe List(0, 1, 2)
+      nextRng should not be TestRng(0)
+      nextRng should not be TestRng(1)
+      nextRng should not be TestRng(2)
+    }
+  }
+
   private case class TestRng(n: Int) extends RNG {
     def nextInt: (Int, RNG) = n -> TestRng(n + 1)
   }

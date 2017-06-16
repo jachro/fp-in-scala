@@ -29,4 +29,11 @@ object State {
       val (b, nextNextS) = sb(nextS)
       f(a, b) -> nextNextS
     }
+
+  def sequence[A, S](fs: List[S => (A, S)]): S => (List[A], S) =
+    s => fs.foldLeft(List.empty[A] -> s) {
+      case ((res, ss), f) =>
+        val (v, nextS) = f(ss)
+        (res :+ v) -> nextS
+    }
 }
