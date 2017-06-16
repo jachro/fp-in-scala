@@ -16,4 +16,12 @@ case class State[S, +A](run: S => (A, S)) {
 object State {
 
   type State[S, +A] = S => (A, S)
+
+  def map2[A, B, C, S](sa: S => (A, S), sb: S => (B, S))
+                      (f: (A, B) => C): S => (C, S) =
+    s => {
+      val (a, nextS) = sa(s)
+      val (b, nextNextS) = sb(nextS)
+      f(a, b) -> nextNextS
+    }
 }

@@ -47,6 +47,20 @@ class Ex10Spec extends WordSpec with Matchers {
     }
   }
 
+  "State.map2" should {
+
+    val intDoubleGen = State.map2(nonNegativeInt, doubleRand)(_ -> _)
+
+    "allow to build (int, double) generator" in {
+
+      val (v, nextRng) = intDoubleGen(TestRng(0))
+
+      v shouldBe 0 -> 1.toDouble / Int.MaxValue
+      nextRng should not be TestRng(0)
+      nextRng should not be TestRng(1)
+    }
+  }
+
   private case class TestRng(n: Int) extends RNG {
     def nextInt: (Int, RNG) = n -> TestRng(n + 1)
   }
