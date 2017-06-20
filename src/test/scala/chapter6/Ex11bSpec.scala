@@ -2,7 +2,7 @@ package chapter6
 
 import org.scalatest.{Matchers, WordSpec}
 
-class Ex11Spec extends WordSpec with Matchers {
+class Ex11bSpec extends WordSpec with Matchers {
 
   sealed trait Input
 
@@ -29,19 +29,15 @@ class Ex11Spec extends WordSpec with Matchers {
 
   type MachineState = State.State[Machine, (Int, Int)]
 
-  def simulateMachine(inputs: Input*): MachineState =
-    machine =>
-      inputs.foldLeft((machine.coins -> machine.candies) -> machine) {
-        case ((_, machineState), input) => takeInput(input)(machineState)
-      }
+  def simulateMachine(inputs: Input*): State[Machine, (Int, Int)] =
+    inputs.foldLeft(State[Machine, (Int, Int)](m => (m.coins -> m.candies) -> m))(takeInput)
 
-  private def takeInput(input: Input): MachineState = machine =>
-    input match {
-      case Coin => machine.takeCoinIfLocked.toCoinCandyMachine
-      case Turn => machine.getCandyIfUnlocked.toCoinCandyMachine
-      case _ => machine.toCoinCandyMachine
-    }
-
+  private val takeInput: (State[Machine, (Int, Int)], Input) => State[Machine, (Int, Int)] = {
+    case (s, Coin) => State(s.flatMap(_ => machine => machine.takeCoinIfLocked.toCoinCandyMachine))
+    case (s, Turn) => State(s.flatMap(_ => machine => machine.getCandyIfUnlocked.toCoinCandyMachine))
+    case (s, _) => State(s.flatMap(_ => machine => machine.toCoinCandyMachine))
+  }
+  
   "simulateMachine" should {
 
     "return 14 coins and 1 candy " +
@@ -51,7 +47,7 @@ class Ex11Spec extends WordSpec with Matchers {
 
       val inputs = List.fill(4)(List(Coin, Turn)).flatten
 
-      val ((coinsLeft, candiesLeft), _) = simulateMachine(inputs: _*)(machine)
+      val ((coinsLeft, candiesLeft), _) = simulateMachine(inputs: _*).run(machine)
 
       coinsLeft shouldBe 14
       candiesLeft shouldBe 1
@@ -62,7 +58,7 @@ class Ex11Spec extends WordSpec with Matchers {
 
       val machine = Machine(locked = true, candies = 5, coins = 10)
 
-      val ((coinsLeft, candiesLeft), _) = simulateMachine(Turn)(machine)
+      val ((coinsLeft, candiesLeft), _) = simulateMachine(Turn).run(machine)
 
       coinsLeft shouldBe 10
       candiesLeft shouldBe 5
@@ -73,7 +69,7 @@ class Ex11Spec extends WordSpec with Matchers {
 
       val machine = Machine(locked = false, candies = 5, coins = 10)
 
-      val ((coinsLeft, candiesLeft), _) = simulateMachine(Coin)(machine)
+      val ((coinsLeft, candiesLeft), _) = simulateMachine(Coin).run(machine)
 
       coinsLeft shouldBe 10
       candiesLeft shouldBe 5
