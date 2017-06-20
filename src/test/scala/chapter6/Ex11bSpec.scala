@@ -37,7 +37,7 @@ class Ex11bSpec extends WordSpec with Matchers {
     case (s, Turn) => State(s.flatMap(_ => machine => machine.getCandyIfUnlocked.toCoinCandyMachine))
     case (s, _) => State(s.flatMap(_ => machine => machine.toCoinCandyMachine))
   }
-  
+
   "simulateMachine" should {
 
     "return 14 coins and 1 candy " +
