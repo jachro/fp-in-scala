@@ -49,5 +49,8 @@ object Par {
     } yield f(leftResult, rightResult)
   }
 
+  def asyncF[A, B](f: A => B): A => Par[B] =
+    a => lazyUnit(f(a))
+
   def run[A](es: ExecutorService)(a: Par[A]): Future[A] = ???
 }
