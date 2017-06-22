@@ -49,6 +49,19 @@ object Par {
     } yield f(leftResult, rightResult)
   }
 
+  def map[A, B](pa: Par[A])
+               (f: A => B): Par[B] =
+    map2(pa, unit(()))((a, _) => f(a))
+
+  def parMap[A, B](ps: List[A])
+                  (f: A => B): Par[List[B]] =
+    sequence(ps map asyncF(f))
+
+  def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+    ps.foldLeft(unit(List.empty[A])) {
+      case (res, listItem) => map2(res, listItem)((resList, item) => item :: resList)
+    }
+
   def asyncF[A, B](f: A => B): A => Par[B] =
     a => lazyUnit(f(a))
 
