@@ -2,7 +2,6 @@ package chapter7
 
 import java.util.concurrent.ExecutorService
 
-import scala.concurrent.Await.result
 import scala.concurrent.duration.Duration
 import scala.concurrent.{CanAwait, ExecutionContext, Future}
 import scala.util.{Success, Try}
@@ -32,14 +31,20 @@ object Par {
               (implicit permit: CanAwait) = get
   }
 
-  def fork[A](a: => Par[A]): Par[A] =
-    (es: ExecutorService) =>
-      Future(result(a(es), Duration.Inf))(ExecutionContext.fromExecutor(es))
+  def fork[A](a: => Par[A]): Par[A] = es => {
+
+    implicit val ec = ExecutionContext.fromExecutor(es)
+
+    for {
+      nestedFuture <- Future(a(es))
+      future <- nestedFuture
+    } yield future
+  }
 
   def lazyUnit[A](a: => A): Par[A] = fork(unit(a))
 
   def map2[A, B, C](l: Par[A], r: Par[B])
-                   (f: (A, B) => C): Par[C] = (es: ExecutorService) => {
+                   (f: (A, B) => C): Par[C] = es => {
 
     implicit val ec = ExecutionContext.fromExecutor(es)
 
