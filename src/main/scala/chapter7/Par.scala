@@ -84,5 +84,31 @@ object Par {
   def asyncF[A, B](f: A => B): A => Par[B] =
     a => lazyUnit(f(a))
 
+  def choiceN[A](n: Par[Int])
+                (choices: List[Par[A]]): Par[A] =
+    flatMap(n)(choices)
+
+  def choice[A](cond: Par[Boolean])
+               (r: Par[A], l: Par[A]): Par[A] = {
+    
+    val ch: Par[Int] = map(cond) {
+      case true => 0
+      case false => 1
+    }
+
+    choiceN(ch)(List(r, l))
+  }
+
+  def flatMap[A, B](p: Par[A])
+                   (f: A => Par[B]): Par[B] =
+    flatten[B](map2(p, unit(()))((pv, _) => f(pv)))
+
+  def flatten[A](p: Par[Par[A]]): Par[A] = es => {
+
+    implicit val ec = ExecutionContext.fromExecutor(es)
+
+    p(es) flatMap (ip => ip(es))
+  }
+
   def run[A](es: ExecutorService)(a: Par[A]): Future[A] = ???
 }
