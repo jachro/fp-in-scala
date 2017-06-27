@@ -1,17 +1,33 @@
 package chapter8
 
-trait Gen[A]
+object Prop {
+
+  type FailedCase = String
+  type SuccessCount = Int
+}
 
 trait Prop {
 
   self =>
 
-  def check: Boolean
+  import Prop._
+
+  def check: Either[(FailedCase, SuccessCount), SuccessCount]
 
   def &&(p: Prop): Prop = new Prop {
-    override def check = self.check && p.check
+
+    override def check: Either[(FailedCase, SuccessCount), SuccessCount] =
+      self.check flatMap {
+        count =>
+          p.check fold(
+            failure => Left(failure._1 -> (count + failure._2)),
+            pCount => Right(count + pCount)
+          )
+      }
   }
 }
+
+trait Gen[A]
 
 object Gen {
 

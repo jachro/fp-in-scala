@@ -29,6 +29,10 @@ object Par {
 
     def result(atMost: Duration)
               (implicit permit: CanAwait) = get
+
+    def transform[S](f: (Try[A]) => Try[S])(implicit executor: ExecutionContext) = ???
+
+    def transformWith[S](f: (Try[A]) => Future[S])(implicit executor: ExecutionContext) = ???
   }
 
   def fork[A](a: => Par[A]): Par[A] = es => {
