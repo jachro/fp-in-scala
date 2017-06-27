@@ -90,7 +90,7 @@ object Par {
 
   def choice[A](cond: Par[Boolean])
                (r: Par[A], l: Par[A]): Par[A] = {
-    
+
     val ch: Par[Int] = map(cond) {
       case true => 0
       case false => 1
