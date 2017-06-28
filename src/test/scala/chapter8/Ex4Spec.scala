@@ -6,6 +6,7 @@ import org.scalatest.{Matchers, WordSpec}
 class Ex4Spec extends WordSpec with Matchers {
 
   import Gen._
+  import TestRng._
 
   "choose" should {
 
@@ -36,13 +37,4 @@ class Ex4Spec extends WordSpec with Matchers {
       list.reverse shouldBe List(0, 1, 2, 3, 0, 1, 2)
     }
   }
-
-  private case class TestRng(n: Int) extends RNG {
-    def nextInt: (Int, RNG) = {
-      val v = n % 5
-      v -> TestRng(v + 1)
-    }
-  }
-
-  private def RNGZ5startingFrom(n: Int) = TestRng(n)
 }

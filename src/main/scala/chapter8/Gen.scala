@@ -49,6 +49,8 @@ object Gen {
     Gen[Int](intFromRange)
   }
 
+  def unit[A](v: => A): Gen[A] = Gen[A](RNG => v -> RNG)
+
   def listOf[A](a: Gen[A]): Gen[List[A]] = ???
 
   def listOfN[A](n: Int, a: Gen[A]): Gen[List[A]] = ???
