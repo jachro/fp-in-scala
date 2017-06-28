@@ -66,4 +66,20 @@ class Ex5Spec extends WordSpec with Matchers {
       t2 shouldBe 2 -> 3
     }
   }
+
+  "option" should {
+
+    "be doable from the existing Gen methods" in {
+
+      val gen = option(nonNegativeInt)
+
+      implicit val rng = RNGZ5startingFrom(0)
+
+      val t1 :: t2 :: t3 :: Nil = gen.call(3)
+
+      t1 shouldBe None
+      t2 shouldBe None
+      t3 shouldBe Some(4)
+    }
+  }
 }

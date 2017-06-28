@@ -73,14 +73,21 @@ object Gen {
     r.reverse -> nextRng
   }
 
-  def tuple[A](g: Gen[A]): Gen[(A, A)] = Gen {
+  def tuple[A](g: Gen[A]): Gen[(A, A)] = map2(g, g)(_ -> _)
 
+  def option[A](g: Gen[A]): Gen[Option[A]] = map2(g, boolean) {
+    case (a, true) => Some(a)
+    case (a, false) => None
+  }
+
+  def map2[A, B, C](gA: Gen[A], gB: Gen[B])
+                   (f: (A, B) => C): Gen[C] = Gen[C] {
     rng => {
 
-      val (l, nextRng) = g.sample(rng)
-      val (r, nextNextRng) = g.sample(nextRng)
+      val (a, nRng) = gA.sample(rng)
+      val (b, nnRng) = gB.sample(nRng)
 
-      (l, r) -> nextNextRng
+      (f(a, b), nnRng)
     }
   }
 }
