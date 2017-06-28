@@ -34,14 +34,14 @@ case class Gen[A](sample: State[RNG, A])
 
 object Gen {
 
-  import RNG.{nonNegativeInt => nonNegativeIntRng, _}
+  import RNG.{flatMap => flatMapRng, nonNegativeInt => nonNegativeIntRng, _}
 
   def forAll[A](gen: Gen[A])(predicate: A => Boolean): Prop = ???
 
   def choose(start: Int, stopExclusive: Int): Gen[Int] = {
 
     def intFromRange: Rand[Int] =
-      flatMap[Int, Int](nonNegativeIntRng) {
+      flatMapRng[Int, Int](nonNegativeIntRng) {
         case i if i >= start && i < stopExclusive => RNG => i -> RNG
         case _ => intFromRange
       }
@@ -60,7 +60,10 @@ object Gen {
     }
   }
 
-  def listOf[A](g: Gen[A]): Gen[List[A]] = ???
+  def listOf[A](g: Gen[A]): Gen[List[A]] = flatMap(choose(0, Int.MaxValue)) {
+    case 0 => unit(List.empty[A])
+    case n => listOfN(n, g)
+  }
 
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen[List[A]] { RNG =>
 
@@ -73,13 +76,6 @@ object Gen {
     r.reverse -> nextRng
   }
 
-  def tuple[A](g: Gen[A]): Gen[(A, A)] = map2(g, g)(_ -> _)
-
-  def option[A](g: Gen[A]): Gen[Option[A]] = map2(g, boolean) {
-    case (a, true) => Some(a)
-    case (a, false) => None
-  }
-
   def map2[A, B, C](gA: Gen[A], gB: Gen[B])
                    (f: (A, B) => C): Gen[C] = Gen[C] {
     rng => {
@@ -89,5 +85,33 @@ object Gen {
 
       (f(a, b), nnRng)
     }
+  }
+
+  def map[A, B](g: Gen[A])
+               (f: A => B): Gen[B] = map2(g, unit(1)) {
+    case (v, _) => f(v)
+  }
+
+  def flatMap[A, B](g: Gen[A])
+                   (f: A => Gen[B]): Gen[B] = Gen[B] {
+    rng => {
+
+      val (v, nRng) = g.sample(rng)
+
+      val Gen(nextSample) = f(v)
+
+      nextSample(nRng)
+    }
+  }
+
+  def tuple[A](g: Gen[A]): Gen[(A, A)] = map2(g, g)(_ -> _)
+
+  def option[A](g: Gen[A]): Gen[Option[A]] = map2(g, boolean) {
+    case (a, true) => Some(a)
+    case (a, false) => None
+  }
+
+  def string: Gen[String] = map(listOf(choose(32, 128))) {
+    _.map(_.toChar).mkString
   }
 }

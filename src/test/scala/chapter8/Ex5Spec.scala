@@ -82,4 +82,19 @@ class Ex5Spec extends WordSpec with Matchers {
       t3 shouldBe Some(4)
     }
   }
+
+  "string" should {
+
+    "be doable from the existing Gen methods" in {
+
+      val gen = string
+
+      implicit val rng = RNGstartingFrom(30)
+
+      val t1 :: t2 :: Nil = gen.call(2)
+
+      t1 shouldBe " !\"#$%&'()*+,-./0123456789:;<="
+      t2 shouldBe "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|"
+    }
+  }
 }
