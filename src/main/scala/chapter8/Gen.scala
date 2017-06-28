@@ -34,14 +34,14 @@ case class Gen[A](sample: State[RNG, A])
 
 object Gen {
 
-  import RNG._
+  import RNG.{nonNegativeInt => nonNegativeIntRng, _}
 
   def forAll[A](gen: Gen[A])(predicate: A => Boolean): Prop = ???
 
   def choose(start: Int, stopExclusive: Int): Gen[Int] = {
 
     def intFromRange: Rand[Int] =
-      flatMap[Int, Int](nonNegativeInt) {
+      flatMap[Int, Int](nonNegativeIntRng) {
         case i if i >= start && i < stopExclusive => RNG => i -> RNG
         case _ => intFromRange
       }
@@ -51,6 +51,8 @@ object Gen {
 
   def unit[A](v: => A): Gen[A] = Gen[A](RNG => v -> RNG)
 
+  def nonNegativeInt: Gen[Int] = Gen(nonNegativeIntRng)
+
   def boolean: Gen[Boolean] = Gen[Boolean] {
     RNG => {
       val (i, nextRng) = RNG.nextInt
@@ -58,17 +60,27 @@ object Gen {
     }
   }
 
-  def listOf[A](a: Gen[A]): Gen[List[A]] = ???
+  def listOf[A](g: Gen[A]): Gen[List[A]] = ???
 
-  def listOfN[A](n: Int, a: Gen[A]): Gen[List[A]] = Gen[List[A]] { RNG =>
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen[List[A]] { RNG =>
 
     val (r, nextRng) = (1 to n).foldLeft(List.empty[A] -> RNG) {
       case ((l, rng), _) =>
-        val (v, nextRng) = a.sample(rng)
+        val (v, nextRng) = g.sample(rng)
         (v :: l) -> nextRng
     }
 
     r.reverse -> nextRng
   }
 
+  def tuple[A](g: Gen[A]): Gen[(A, A)] = Gen {
+
+    rng => {
+
+      val (l, nextRng) = g.sample(rng)
+      val (r, nextNextRng) = g.sample(nextRng)
+
+      (l, r) -> nextNextRng
+    }
+  }
 }
