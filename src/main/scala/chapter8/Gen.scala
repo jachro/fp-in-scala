@@ -42,20 +42,20 @@ object Gen {
 
     def intFromRange: Rand[Int] =
       flatMapRng[Int, Int](nonNegativeIntRng) {
-        case i if i >= start && i < stopExclusive => RNG => i -> RNG
+        case i if i >= start && i < stopExclusive => rng => i -> rng
         case _ => intFromRange
       }
 
     Gen[Int](intFromRange)
   }
 
-  def unit[A](v: => A): Gen[A] = Gen[A](RNG => v -> RNG)
+  def unit[A](v: => A): Gen[A] = Gen[A](rng => v -> rng)
 
   def nonNegativeInt: Gen[Int] = Gen(nonNegativeIntRng)
 
   def boolean: Gen[Boolean] = Gen[Boolean] {
-    RNG => {
-      val (i, nextRng) = RNG.nextInt
+    rng => {
+      val (i, nextRng) = rng.nextInt
       (i % 2 == 0) -> nextRng
     }
   }
@@ -65,11 +65,11 @@ object Gen {
     case n => listOfN(n, g)
   }
 
-  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen[List[A]] { RNG =>
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] = Gen[List[A]] { rng =>
 
-    val (r, nextRng) = (1 to n).foldLeft(List.empty[A] -> RNG) {
-      case ((l, rng), _) =>
-        val (v, nextRng) = g.sample(rng)
+    val (r, nextRng) = (1 to n).foldLeft(List.empty[A] -> rng) {
+      case ((l, currentRng), _) =>
+        val (v, nextRng) = g.sample(currentRng)
         (v :: l) -> nextRng
     }
 
@@ -88,8 +88,8 @@ object Gen {
   }
 
   def map[A, B](g: Gen[A])
-               (f: A => B): Gen[B] = map2(g, unit(1)) {
-    case (v, _) => f(v)
+               (f: A => B): Gen[B] = flatMap(g) {
+    v => unit(f(v))
   }
 
   def flatMap[A, B](g: Gen[A])
