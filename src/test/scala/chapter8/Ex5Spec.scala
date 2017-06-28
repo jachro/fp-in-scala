@@ -21,4 +21,19 @@ class Ex5Spec extends WordSpec with Matchers {
       gen.sample(nextRng)._1 shouldBe 0
     }
   }
+
+  "boolean" should {
+
+    "return sample boolean values" in {
+
+      val gen = boolean
+
+      val rng = RNGZ5startingFrom(0)
+
+      val (v, nextRng) = gen.sample(rng)
+      v shouldBe true
+
+      gen.sample(nextRng)._1 shouldBe false
+    }
+  }
 }

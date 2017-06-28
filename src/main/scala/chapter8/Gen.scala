@@ -30,7 +30,7 @@ trait Prop {
   }
 }
 
-case class Gen[A](sample: State[RNG,A])
+case class Gen[A](sample: State[RNG, A])
 
 object Gen {
 
@@ -50,6 +50,13 @@ object Gen {
   }
 
   def unit[A](v: => A): Gen[A] = Gen[A](RNG => v -> RNG)
+
+  def boolean: Gen[Boolean] = Gen[Boolean] {
+    RNG => {
+      val (i, nextRng) = RNG.nextInt
+      (i % 2 == 0) -> nextRng
+    }
+  }
 
   def listOf[A](a: Gen[A]): Gen[List[A]] = ???
 
