@@ -36,4 +36,19 @@ class Ex5Spec extends WordSpec with Matchers {
       gen.sample(nextRng)._1 shouldBe false
     }
   }
+
+  "listOfN" should {
+
+    "return a list of length on n with the values generated using the given Gen" in {
+
+      val gen = listOfN(3, boolean)
+
+      implicit val rng = RNGZ5startingFrom(0)
+
+      val r1 :: r2 :: Nil = gen.call(2)
+
+      r1 shouldBe List(true, false, true)
+      r2 shouldBe List(false, true, true)
+    }
+  }
 }

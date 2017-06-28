@@ -43,7 +43,7 @@ object Gen {
     def intFromRange: Rand[Int] =
       flatMap[Int, Int](nonNegativeInt) {
         case i if i >= start && i < stopExclusive => RNG => i -> RNG
-        case i => intFromRange
+        case _ => intFromRange
       }
 
     Gen[Int](intFromRange)
@@ -60,6 +60,15 @@ object Gen {
 
   def listOf[A](a: Gen[A]): Gen[List[A]] = ???
 
-  def listOfN[A](n: Int, a: Gen[A]): Gen[List[A]] = ???
+  def listOfN[A](n: Int, a: Gen[A]): Gen[List[A]] = Gen[List[A]] { RNG =>
+
+    val (r, nextRng) = (1 to n).foldLeft(List.empty[A] -> RNG) {
+      case ((l, rng), _) =>
+        val (v, nextRng) = a.sample(rng)
+        (v :: l) -> nextRng
+    }
+
+    r.reverse -> nextRng
+  }
 
 }
