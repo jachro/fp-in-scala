@@ -1,5 +1,8 @@
 package chapter8
 
+import chapter6.RNG
+import chapter6.State.State
+
 object Prop {
 
   type FailedCase = String
@@ -27,11 +30,24 @@ trait Prop {
   }
 }
 
-trait Gen[A]
+case class Gen[A](sample: State[RNG,A])
 
 object Gen {
 
+  import RNG._
+
   def forAll[A](gen: Gen[A])(predicate: A => Boolean): Prop = ???
+
+  def choose(start: Int, stopExclusive: Int): Gen[Int] = {
+
+    def intFromRange: Rand[Int] =
+      flatMap[Int, Int](nonNegativeInt) {
+        case i if i >= start && i < stopExclusive => RNG => i -> RNG
+        case i => intFromRange
+      }
+
+    Gen[Int](intFromRange)
+  }
 
   def listOf[A](a: Gen[A]): Gen[List[A]] = ???
 
