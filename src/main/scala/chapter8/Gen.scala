@@ -114,6 +114,16 @@ object Gen {
     }
   }
 
+  def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] = {
+
+    def startGen(g: Gen[A]) = flatMap(g) {
+      case _ if g == g1 => g2
+      case _ => g2
+    }
+
+    startGen(g1)
+  }
+
   def tuple[A](g: Gen[A]): Gen[(A, A)] = map2(g, g)(_ -> _)
 
   def option[A](g: Gen[A]): Gen[Option[A]] = map2(g, boolean) {
