@@ -76,6 +76,16 @@ object Gen {
     r.reverse -> nextRng
   }
 
+  def listOfNOnFlatMap[A](n: Int, g: Gen[A]): Gen[List[A]] = {
+
+    def listGen(l: List[A]): Gen[List[A]] = flatMap(g) {
+      case v if l.size == n - 1 => unit((v :: l).reverse)
+      case v => listGen(v :: l)
+    }
+
+    listGen(List.empty)
+  }
+
   def map2[A, B, C](gA: Gen[A], gB: Gen[B])
                    (f: (A, B) => C): Gen[C] = Gen[C] {
     rng => {
