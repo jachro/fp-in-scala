@@ -13,6 +13,8 @@ object TestRng {
 
   def RNGZ5startingFrom(n: Int) = TestRng(z = 5)(n)
 
+  def RNGZ20startingFrom(n: Int) = TestRng(z = 20)(n)
+
   def RNGstartingFrom(n: Int) = TestRng(z = Int.MaxValue)(n)
 
   implicit class RNGResultOps[A](gen: Gen[A]) {

@@ -1,5 +1,7 @@
 package chapter8
 
+import java.lang.Math.abs
+
 import chapter6.RNG
 import chapter6.State.State
 
@@ -122,6 +124,48 @@ object Gen {
     }
 
     startGen(g1)
+  }
+
+  def weighted[A](g1: (Gen[A], Double), g2: (Gen[A], Double)): Gen[A] = {
+
+    val (gen1, gen1Weight) = g1
+    val (gen2, gen2Weight) = g2
+
+    require(gen1Weight + gen2Weight == 1, "Given weights have to sum up to 1")
+
+    var count1, count2 = 0L
+
+    def sum: Double = count1 + count2
+
+    def ratio(s: Long): Double = if (sum != 0) s.toDouble / sum else 0D
+
+    def distance(c: Long, weight: Double) = abs(weight - ratio(c))
+
+    def gen(g: Gen[A]): Gen[A] = flatMap(g) {
+
+      _ => {
+
+        println(s"gen1 or 2 ${g == gen1}")
+        if (g == gen1) count1 += 1
+        else count2 += 1
+
+        println(s"c1: $count1; c2: $count2; sum: $sum; f: ${distance(count1, gen1Weight)}; s: ${distance(count2, gen2Weight)}")
+
+        if (distance(count1, gen1Weight) > distance(count2, gen2Weight)) {
+          println("gen1")
+          gen1
+        }
+        else {
+          println("gen2")
+          gen2
+        }
+      }
+    }
+
+    gen {
+      if (distance(count1, gen1Weight) > distance(count2, gen2Weight)) gen1
+      else gen2
+    }
   }
 
   def tuple[A](g: Gen[A]): Gen[(A, A)] = map2(g, g)(_ -> _)
