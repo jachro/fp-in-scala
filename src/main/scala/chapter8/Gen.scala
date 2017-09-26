@@ -145,7 +145,7 @@ object Gen {
 
       _ => {
 
-        println(s"gen1 or 2 ${g == gen1}")
+        println(if (g == gen1) "gen1" else "gen2")
         if (g == gen1) count1 += 1
         else count2 += 1
 
@@ -163,6 +163,9 @@ object Gen {
     }
 
     gen {
+
+      println(s"c1: $count1; c2: $count2; sum: $sum; f: ${distance(count1, gen1Weight)}; s: ${distance(count2, gen2Weight)}")
+
       if (distance(count1, gen1Weight) > distance(count2, gen2Weight)) gen1
       else gen2
     }

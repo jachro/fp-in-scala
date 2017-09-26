@@ -15,13 +15,15 @@ class Ex8Spec extends WordSpec with Matchers {
 
       implicit val rng = RNGZ20startingFrom(0)
 
-      val (firstGen, secondGen) = gen.call(30).partition(_ < 10)
+      val numberOfCalls = 5
+
+      val (firstGen, secondGen) = gen.call(times = numberOfCalls).partition(_ < 10)
 
       println(s"f: $firstGen")
       println(s"s: $secondGen")
 
-      firstGen.size shouldBe < (30 * 0.25)
-      secondGen.size shouldBe > (30 * 0.75)
+      firstGen.size shouldBe < (numberOfCalls * 0.25)
+      secondGen.size shouldBe > (numberOfCalls * 0.75)
     }
   }
 }
